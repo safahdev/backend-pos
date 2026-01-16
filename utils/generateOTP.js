@@ -1,5 +1,5 @@
-const generateOTp = () => {
-    Math.floor(1000 + Math.random() * 9000).toString()
+const generateOtp = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString()
 }
 
-module.exports = generateOTp
+module.exports = generateOtp

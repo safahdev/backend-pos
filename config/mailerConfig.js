@@ -8,4 +8,13 @@ const trasnporter = nodemailer.createTransport({
     }
 })
 
-module.exports = trasnporter
+const sendEmailOtp = async (email, otp) => {
+    await trasnporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'OTP Reset Password',
+        text: `Kode OTP kamu : ${otp}`
+    })
+}
+
+module.exports = sendEmailOtp

@@ -1,6 +1,6 @@
 const prisma = require('../config/prismaConfig')
-const transporter = require('../config/mailerConfig')
-const generateOTp = require('../utils/generateOTP')
+const sendEmailOtp = require('../config/mailerConfig')
+const generateOtp = require('../utils/generateOTP')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
@@ -96,6 +96,8 @@ const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body
 
+        const otp = generateOtp()
+
         const existingUser = await prisma.user.findUnique({
             where: { email }
         })
@@ -105,7 +107,6 @@ const forgotPassword = async (req, res, next) => {
             err.status = 400
             throw err
         }
-        const otp = generateOTp()
 
         await prisma.user.update({
             where: { email },
@@ -115,18 +116,15 @@ const forgotPassword = async (req, res, next) => {
             }
         })
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: 'OTP Reset Password',
-            text: `OTP : ${otp}`
-        })
+        await sendEmailOtp(email, otp)
+
 
         return res.status(201).json({
             success: true,
             message: 'OTP send successfully'
         })
     } catch (error) {
+        console.error(error)
         next(error)
     }
 

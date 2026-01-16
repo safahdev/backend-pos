@@ -1,18 +1,22 @@
 const { z } = require('zod')
+const validator = require('validator')
 
 // auth schema
 const loginSchema = z.object({
-    email: z.string().email(),
+    email: z.string().refine(validator.isEmail),
     password: z.string().min(6)
 })
 
 const registerSchema = z.object({
     username: z.string().min(3),
-    password: z.string().min(6)
-        .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-        .regex(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-        .regex(/[0-9]/, 'Password must contain at least 1 number')
-        .regex(/[\W_]/, 'Password must contain at least 1 special character'),
+    password: z.string().min(6).refine(val => validator.isStrongPassword(val, {
+        minLength: 6,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 0,
+    }), {
+        message: 'Password is not enough strong!. need min 6 word, min number 1, min symbol 1, min uppercase 1'
+    }),
     confirmPassword: z.string(),
     email: z.string().email(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -21,26 +25,33 @@ const registerSchema = z.object({
 })
 
 const forgotPasswordSchema = z.object({
-    email: z.string().email()
+    email: z.string().refine(validator.isEmail)
 })
 
 const updatePasswordSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6)
-        .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-        .regex(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-        .regex(/[0-9]/, 'Password must contain at least 1 number')
-        .regex(/[\W_]/, 'Password must contain at least 1 special character'),
+    email: z.string().refine(validator.isEmail),
+    password: z.string().min(6).refine(val => validator.isStrongPassword(val, {
+        minLength: 6,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 0,
+    }), {
+        message: 'Password is not enough strong!. need min 6 word, min number 1, min symbol 1, min uppercase 1'
+    }),
+
 })
 
 const resetPasswordSchema = z.object({
-    email: z.string().email(),
     otp: z.string(),
-    password: z.string().min(6)
-        .regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter')
-        .regex(/[a-z]/, 'Password must contain at least 1 lowercase letter')
-        .regex(/[0-9]/, 'Password must contain at least 1 number')
-        .regex(/[\W_]/, 'Password must contain at least 1 special character'),
+    email: z.string().refine(validator.isEmail),
+    password: z.string().min(6).refine(val => validator.isStrongPassword(val, {
+        minLength: 6,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 0,
+    }), {
+        message: 'Password is not enough strong!. need min 6 word, min number 1, min symbol 1, min uppercase 1'
+    }),
 })
 
 // category schema
