@@ -2,6 +2,8 @@
 // Main entry point Backend
 require('dotenv').config()
 const express = require('express')
+const compression = require('compression')
+const { globalLimiter } = require('./utils/rateLimiter')
 const cors = require('cors')
 const authRoutes = require('./routes/authRoutes')
 const { errorRoute, globalError } = require('./middlewares/errorHandlerMiddleware')
@@ -15,6 +17,8 @@ const PORT = process.env.PORT
 //  Middleware
 app.use(cors())
 app.use(express.json())
+app.use(compression())
+app.use(globalLimiter)
 app.use(express.urlencoded({ extended: true }))
 
 // routes

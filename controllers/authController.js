@@ -1,5 +1,6 @@
 const prisma = require('../config/prismaConfig')
 const transporter = require('../config/mailerConfig')
+const generateOTp = require('../utils/generateOTP')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
@@ -46,7 +47,6 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body
-        console.log(req.body)
 
         const existingUser = await prisma.user.findUnique({
             where: { email }
@@ -105,7 +105,7 @@ const forgotPassword = async (req, res, next) => {
             err.status = 400
             throw err
         }
-        const otp = Math.floor(1000 + Math.random() * 9000).toString()
+        const otp = generateOTp()
 
         await prisma.user.update({
             where: { email },
