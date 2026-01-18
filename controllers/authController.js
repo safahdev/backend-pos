@@ -5,9 +5,9 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const register = async (req, res, next) => {
+    const { email, username, password } = req.body
+    
     try {
-        const { email, username, password } = req.body
-
         const existingUser = await prisma.user.findUnique({
             where: { email }
         })
@@ -45,9 +45,9 @@ const register = async (req, res, next) => {
 }
 
 const login = async (req, res, next) => {
-    try {
-        const { email, password } = req.body
+    const { email, password } = req.body
 
+    try {
         const existingUser = await prisma.user.findUnique({
             where: { email }
         })
@@ -93,9 +93,9 @@ const login = async (req, res, next) => {
 }
 
 const forgotPassword = async (req, res, next) => {
-    try {
-        const { email } = req.body
+    const { email } = req.body
 
+    try {
         const otp = generateOtp()
 
         const existingUser = await prisma.user.findUnique({
@@ -131,9 +131,9 @@ const forgotPassword = async (req, res, next) => {
 }
 
 const updatePassword = async (req, res, next) => {
-    try {
-        const { email, password } = req.body
+    const { email, password } = req.body
 
+    try {
         const hashedPassword = await bcrypt.hash(password, 10)
 
         await prisma.user.update({
@@ -154,9 +154,9 @@ const updatePassword = async (req, res, next) => {
 }
 
 const resetPassword = async (req, res, next) => {
-    try {
-        const { email, password } = req.body
+    const { email, password } = req.body
 
+    try {
         const hashedPassword = await bcrypt.hash(password, 10)
 
         await prisma.user.update({
@@ -179,9 +179,9 @@ const resetPassword = async (req, res, next) => {
 }
 
 const getMe = async (req, res, next) => {
-    try {
-        const userId = req.user.id
+    const userId = req.user.id
 
+    try {
         const user = await prisma.user.findUnique({
             where: { id: Number(userId) },
             select: {

@@ -5,7 +5,7 @@ const express = require('express')
 const compression = require('compression')
 const { globalLimiter } = require('./utils/rateLimiter')
 const cors = require('cors')
-const authRoutes = require('./routes/authRoutes')
+const routes = require('./routes/index')
 const { errorRoute, globalError } = require('./middlewares/errorHandlerMiddleware')
 const app = express()
 const PORT = process.env.PORT
@@ -22,8 +22,7 @@ app.use(globalLimiter)
 app.use(express.urlencoded({ extended: true }))
 
 // routes
-app.use('/api/auth', authRoutes)
-
+app.use('/api', routes)
 
 // Health check
 app.get('/health', (req, res) => {

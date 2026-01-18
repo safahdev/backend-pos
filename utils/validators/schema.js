@@ -57,7 +57,7 @@ const resetPasswordSchema = z.object({
 // category schema
 const createCategorySchema = z.object({
     name: z.string().min(1),
-    icon: z.string().min(10)
+    icon: z.string().min(3).optional()
 })
 
 const updateCategorySchema = createCategorySchema

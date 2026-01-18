@@ -14,7 +14,7 @@ const validate = (schema, source = 'body') => {
             // replace data request dengan hasil validasi
             req[source] = result
 
-            next()
+            return next()
         } catch (error) {
             if (error instanceof ZodError) {
                 return res.status(400).json({
