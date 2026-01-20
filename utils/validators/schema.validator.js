@@ -4,9 +4,9 @@ const validator = require('validator')
 // auth schema
 const loginSchema = z.object({
     username: z.string().min(3)
-    .refine(val => validator.matches(val, ['^[a-zA-Z0-9_.\\-]*$']), {
-        message: 'Usernames can only be letters (a), numbers (1), periods (.), underscores and hyphens (-)'
-    }),
+        .refine(val => validator.matches(val, ['^[a-zA-Z0-9_.\\-]*$']), {
+            message: 'Usernames can only be letters (a), numbers (1), periods (.), underscores and hyphens (-)'
+        }),
     password: z.string().min(6)
 })
 
@@ -67,11 +67,11 @@ const updateCategorySchema = createCategorySchema
 
 // product schema
 const createProductSchema = z.object({
-    name: z.string().min(4),
-    price: z.number().positive(),
-    categoryId: z.string(),
-    description: z.string().min(10),
-    stock: z.number().positive()
+    name: z.string().min(4, 'name minimum 4 character'),
+    price: z.coerce.number().positive('price must be greater than 0'),
+    categoryId: z.coerce.number().int('categoryId must be number'),
+    description: z.string().optional(),
+    stock: z.coerce.number().int().nonnegative('stock cant be negative'),
 })
 
 const updateProductSchema = createProductSchema
