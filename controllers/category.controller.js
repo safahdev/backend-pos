@@ -1,6 +1,6 @@
-const prisma = require('../config/prismaConfig')
+const prisma = require('../config/prisma.config')
 
-const getAllCategory = async (req, res, next) => {
+const getAllCategoryWithProduct = async (req, res, next) => {
     const { limit, offset } = req.query
 
     try {
@@ -33,6 +33,38 @@ const getAllCategory = async (req, res, next) => {
             limit,
             offset,
             total: categories.length
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getCategoryWithProductById = async (req, res, next) => {
+    const { id } = req.params
+    
+    try {
+        const categories = await prisma.category.findUnique({
+            where: { id: Number(id) },
+            select: {
+                id: true,
+                name: true,
+                icon: true,
+                products: {
+                    select: {
+                        id: true,
+                        name: true,
+                        price: true,
+                        image: true,
+                        description: true,
+                        stock: true,
+                    }
+                },
+            },
+        })
+
+        return res.status(200).json({
+            message: 'Category read successfully',
+            data: categories,
         })
     } catch (error) {
         next(error)
@@ -127,7 +159,8 @@ const deleteCategory = async (req, res, next) => {
 }
 
 module.exports = {
-    getAllCategory,
+    getAllCategoryWithProduct,
+    getCategoryWithProductById,
     createCategory,
     updateCategory,
     deleteCategory

@@ -6,13 +6,13 @@ const compression = require('compression')
 const { globalLimiter } = require('./utils/rateLimiter')
 const cors = require('cors')
 const routes = require('./routes/index')
-const { errorRoute, globalError } = require('./middlewares/errorHandlerMiddleware')
+const { errorRoute, globalError } = require('./middlewares/errorHandler.middleware')
 const app = express()
 const PORT = process.env.PORT
 
 // testing minio & multer
-// const upload = require('./config/multerConfig')
-// const { uploadMinio, deleteMinio } = require('./config/minioConfig')
+// const upload = require('./config/multer.config')
+// const { uploadMinio, deleteMinio } = require('./config/minio.config')
 
 //  Middleware
 app.use(cors())

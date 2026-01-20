@@ -1,4 +1,4 @@
-const prisma = require('../../config/prismaConfig')
+const prisma = require('../../config/prisma.config')
 const bcrypt = require('bcryptjs')
 async function main(params) {
     const password = await bcrypt.hash('password', 10)

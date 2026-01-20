@@ -3,7 +3,10 @@ const validator = require('validator')
 
 // auth schema
 const loginSchema = z.object({
-    email: z.string().refine(validator.isEmail),
+    username: z.string().min(3)
+    .refine(val => validator.matches(val, ['^[a-zA-Z0-9_.\\-]*$']), {
+        message: 'Usernames can only be letters (a), numbers (1), periods (.), underscores and hyphens (-)'
+    }),
     password: z.string().min(6)
 })
 

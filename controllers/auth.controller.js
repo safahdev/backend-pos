@@ -1,19 +1,29 @@
-const prisma = require('../config/prismaConfig')
-const sendEmailOtp = require('../config/mailerConfig')
+const prisma = require('../config/prisma.config')
+const sendEmailOtp = require('../config/mailer.config')
 const generateOtp = require('../utils/generateOTP')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const register = async (req, res, next) => {
     const { email, username, password } = req.body
-    
+
     try {
-        const existingUser = await prisma.user.findUnique({
+        const existingEmail = await prisma.user.findUnique({
             where: { email }
         })
 
-        if (existingUser) {
+        if (existingEmail) {
             const err = new Error('Email already exists')
+            err.status = 400
+            throw err
+        }
+
+        const existingUsername = await prisma.user.findUnique({
+            where: { username }
+        })
+
+        if (existingUsername) {
+            const err = new Error('Username already exists')
             err.status = 400
             throw err
         }
@@ -45,15 +55,15 @@ const register = async (req, res, next) => {
 }
 
 const login = async (req, res, next) => {
-    const { email, password } = req.body
+    const { username, password } = req.body
 
     try {
         const existingUser = await prisma.user.findUnique({
-            where: { email }
+            where: { username }
         })
 
         if (!existingUser) {
-            const err = new Error('invalid email')
+            const err = new Error('invalid username')
             err.status = 400
             throw err
         }

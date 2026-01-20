@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
-const authRoutes = require('./authRoutes')
-const categoryRoutes = require('./categoryRoute')
+const authRoutes = require('./auth.routes')
+const categoryRoutes = require('./category.route')
 
 router.use('/auth', authRoutes)
 router.use('/categories', categoryRoutes)

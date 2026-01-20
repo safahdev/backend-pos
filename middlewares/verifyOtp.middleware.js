@@ -1,4 +1,4 @@
-const prisma = require('../config/prismaConfig')
+const prisma = require('../config/prisma.config')
 
 const verifyOtp = async (req, res, next) => {
     const { email, otp } = req.body
