@@ -1,4 +1,5 @@
 const minio = require('minio')
+const env = require('./env.config')
 const fs = require('fs')
 
 // config minio
@@ -6,8 +7,8 @@ const minioClient = new minio.Client({
     endPoint: 'play.min.io',
     port: 9000,
     useSSL: true,
-    accessKey: process.env.MINIO_ACCESS_KEY,
-    secretKey: process.env.MINIO_SECRET_KEY
+    accessKey: env.MINIO_ACCESS_KEY,
+    secretKey: env.MINIO_SECRET_KEY
 })
 
 // nama bucket yang diset

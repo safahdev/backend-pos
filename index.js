@@ -1,6 +1,6 @@
 
 // Main entry point Backend
-require('dotenv').config()
+const env = require('./config/env.config')
 const express = require('express')
 const compression = require('compression')
 const { globalLimiter } = require('./utils/rateLimiter')
@@ -8,7 +8,7 @@ const cors = require('cors')
 const routes = require('./routes/index')
 const { errorRoute, globalError } = require('./middlewares/errorHandler.middleware')
 const app = express()
-const PORT = process.env.PORT
+const PORT = env.PORT
 
 // testing minio & multer
 // const upload = require('./config/multer.config')

@@ -1,16 +1,17 @@
 const nodemailer = require('nodemailer')
+const env = require('./env.config')
 
 const trasnporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: env.EMAIL_USER,
+        pass: env.EMAIL_PASS,
     }
 })
 
 const sendEmailOtp = async (email, otp) => {
     await trasnporter.sendMail({
-        from: process.env.EMAIL_USER,
+        from: env.EMAIL_USER,
         to: email,
         subject: 'OTP Reset Password',
         text: `Kode OTP kamu : ${otp}`
