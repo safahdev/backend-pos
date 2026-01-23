@@ -1,10 +1,21 @@
 const prisma = require('../config/prisma.config')
+const buildMinioUrl = require('../utils/minioHelper')
+const { moneyFormat } = require('../utils/moneyFormat')
 
 const getAllCategoryWithProduct = async (req, res, next) => {
-    const { limit, offset } = req.query
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 5
+    const skip = (page - 1) * limit
+
+    const search = req.query.search || ''
 
     try {
         const categories = await prisma.category.findMany({
+            where: {
+                name: {
+                    contains: search
+                }
+            },
             select: {
                 id: true,
                 name: true,
@@ -20,19 +31,41 @@ const getAllCategoryWithProduct = async (req, res, next) => {
                     }
                 },
             },
-            take: parseInt(limit),
-            skip: parseInt(offset),
             orderBy: {
                 name: 'asc'
+            },
+            skip: skip,
+            take: limit
+        })
+
+        const totalCategories = await prisma.category.count({
+            where: {
+                name: {
+                    contains: search
+                }
             }
         })
 
+        const totalPages = Math.ceil(totalCategories / limit)
+
+        const formatted = categories.map(category => ({
+            ...category,
+            products: category.products.map(product => ({
+                ...product,
+                price: moneyFormat(product.price),
+                imageUrl: buildMinioUrl(product.image)
+            }))
+        }))
+
         return res.status(200).json({
             message: 'Category read successfully',
-            data: categories,
-            limit,
-            offset,
-            total: categories.length
+            data: formatted,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                perPage: limit,
+                total: totalCategories
+            }
         })
     } catch (error) {
         next(error)
@@ -41,7 +74,7 @@ const getAllCategoryWithProduct = async (req, res, next) => {
 
 const getCategoryWithProductById = async (req, res, next) => {
     const { id } = req.params
-    
+
     try {
         const categories = await prisma.category.findUnique({
             where: { id: Number(id) },
@@ -62,9 +95,18 @@ const getCategoryWithProductById = async (req, res, next) => {
             },
         })
 
+        const formatted = {
+            ...categories,
+            products: categories.products.map(product => ({
+                ...product,
+                price: moneyFormat(product.price),
+                imageUrl: buildMinioUrl(product.image)
+            }))
+        }
+
         return res.status(200).json({
             message: 'Category read successfully',
-            data: categories,
+            data: formatted,
         })
     } catch (error) {
         next(error)
@@ -78,7 +120,7 @@ const createCategory = async (req, res, next) => {
         const newCategory = await prisma.category.create({
             data: {
                 name: name,
-                icon: icon
+                icon: icon,
             }
         })
         return res.status(201).json({
@@ -98,11 +140,9 @@ const updateCategory = async (req, res, next) => {
     const { id } = req.params
     const { name, icon } = req.body
 
-    const categoryId = Number(id)
-
     try {
         const category = await prisma.category.findUnique({
-            where: { id: categoryId }
+            where: { id: Number(id) }
         })
 
         if (!category) {
@@ -111,19 +151,21 @@ const updateCategory = async (req, res, next) => {
             throw err
         }
 
-        const updatedCategory = await prisma.category.update({
-            where: { id: categoryId },
+        const updateCategory = await prisma.category.update({
+            where: { id: Number(id) },
             data: {
                 name: name,
-                icon: icon
+                icon: icon,
+                updatedAt: new Date()
             }
         })
+
         return res.status(201).json({
             message: 'Category updated successfully',
             category: {
-                id: updatedCategory.id.toString(),
-                name: updatedCategory.name,
-                icon: updatedCategory.icon
+                id: updateCategory.id.toString(),
+                name: updateCategory.name,
+                icon: updateCategory.icon
             }
         })
     } catch (error) {
@@ -134,10 +176,10 @@ const updateCategory = async (req, res, next) => {
 
 const deleteCategory = async (req, res, next) => {
     const { id } = req.params
-    const categoryId = Number(id)
+
     try {
         const category = await prisma.category.findUnique({
-            where: { id: categoryId }
+            where: { id: Number(id) }
         })
 
         if (!category) {
@@ -147,7 +189,7 @@ const deleteCategory = async (req, res, next) => {
         }
 
         await prisma.category.delete({
-            where: { id: categoryId }
+            where: { id: Number(id) }
         })
 
         return res.status(200).json({

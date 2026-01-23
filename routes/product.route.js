@@ -1,13 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const productController = require('../controllers/product.controller')
-const uplaod = require('../config/multer.config')
-const { validateBody, validateParams, validateQuery } = require('../middlewares/validation.middleware')
+const upload = require('../config/multer.config')
+const { validateBody, validateParams } = require('../middlewares/validation.middleware')
 const { authMiddleware, adminOnly, adminOrCashier } = require('../middlewares/auth.middleware')
-const { createProductSchema, updateProductSchema, idParamSchema, paginationSchema } = require('../utils/validators/schema.validator')
+const { createProductSchema, updateProductSchema, idParamSchema } = require('../utils/validators/schema.validator')
 
 router.use(authMiddleware)
 
-router.post('/', uplaod.single('image'), validateBody(createProductSchema), adminOnly, productController.createProduct)
+router.get('/:id', validateParams(idParamSchema), adminOrCashier, productController.getProductById)
+router.post('/', upload.single('image'), validateBody(createProductSchema), adminOnly, productController.createProduct)
+router.put('/:id', upload.single('image'), validateParams(idParamSchema), validateBody(updateProductSchema), adminOnly, productController.updateProduct)
+router.delete('/:id', validateParams(idParamSchema), adminOnly, productController.deleteProduct)
 
 module.exports = router
