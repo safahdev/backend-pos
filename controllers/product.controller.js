@@ -26,7 +26,7 @@ const getProductById = async (req, res, next) => {
         }
 
         return res.status(200).json({
-            message: 'Product read successfully',
+            message: `Product id: ${id} read successfully`,
             product: {
                 id: product.id.toString(),
                 name: product.name,
@@ -126,7 +126,7 @@ const updateProduct = async (req, res, next) => {
         })
 
         return res.status(200).json({
-            message: 'Product updated successfully',
+            message: `Category id: ${id} updated successfully`,
             category: {
                 id: updateProduct.id.toString(),
                 name: updateProduct.name,
@@ -163,7 +163,7 @@ const deleteProduct = async (req, res, next) => {
         }
 
         return res.status(200).json({
-            message: 'Product deleted successfully',
+            message: `Product id: ${id} deleted successfully`,
         })
     } catch (error) {
         next(error)

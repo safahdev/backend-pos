@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const productController = require('../controllers/product.controller')
+const { productController } = require('../controllers')
 const upload = require('../config/multer.config')
 const { validateBody, validateParams } = require('../middlewares/validation.middleware')
 const { authMiddleware, adminOnly, adminOrCashier } = require('../middlewares/auth.middleware')

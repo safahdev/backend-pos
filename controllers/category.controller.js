@@ -105,7 +105,7 @@ const getCategoryWithProductById = async (req, res, next) => {
         }
 
         return res.status(200).json({
-            message: 'Category read successfully',
+            message: `Category id: ${id} read successfully`,
             data: formatted,
         })
     } catch (error) {
@@ -161,7 +161,7 @@ const updateCategory = async (req, res, next) => {
         })
 
         return res.status(201).json({
-            message: 'Category updated successfully',
+            message: `Category id: ${id} updated successfully`,
             category: {
                 id: updateCategory.id.toString(),
                 name: updateCategory.name,
@@ -193,7 +193,7 @@ const deleteCategory = async (req, res, next) => {
         })
 
         return res.status(200).json({
-            message: 'Category deleted successfully',
+            message: `Category id: ${id} deleted successfully`,
         })
     } catch (error) {
         next(error)

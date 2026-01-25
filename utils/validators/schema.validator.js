@@ -79,13 +79,12 @@ const updateProductSchema = createProductSchema
 // transaction schema
 
 const transactionItemSchema = z.object({
-    productId: z.string(),
-    quantity: z.number().positive()
+    productId: z.number().int().positive(),
+    qty: z.number().int().positive()
 })
-
 const createTransactionSchema = z.object({
     customerName: z.string().optional(),
-    tableNumber: z.string().optional(),
+    tableNumber: z.number().int().optional(),
     orderType: z.enum(['dine_in', 'take_away']),
     paymentMethod: z.enum(['cash', 'midtrans']),
     note: z.string().optional(),
