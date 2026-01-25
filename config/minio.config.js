@@ -1,4 +1,5 @@
 const minio = require('minio')
+const env = require('./env.config')
 const fs = require('fs')
 
 // config minio
@@ -6,12 +7,14 @@ const minioClient = new minio.Client({
     endPoint: 'play.min.io',
     port: 9000,
     useSSL: true,
-    accessKey: process.env.MINIO_ACCESS_KEY,
-    secretKey: process.env.MINIO_SECRET_KEY
+    accessKey: env.MINIO_ACCESS_KEY,
+    secretKey: env.MINIO_SECRET_KEY
 })
 
 // nama bucket yang diset
-const bucketName = 'pos-images'
+const bucketName = env.MINIO_BUCKET
+// nama public url
+const publicUrl = env.MINIO_PUBLIC_URL
 
 // checking bucket
 const ensureBucket = async () => {
@@ -19,11 +22,22 @@ const ensureBucket = async () => {
         const exist = await minioClient.bucketExists(bucketName)
         if (!exist) {
             await minioClient.makeBucket(bucketName)
-
-            return {
-                success: true,
-                message: `Bucket ${bucketName} successfully created`
+            const policyAllowAllRead = {
+                Version: '2012-10-17',
+                Id: 'allow-all-read',
+                Statement: [
+                    {
+                        Action: ['s3:GetObject'],
+                        Effect: 'Allow',
+                        Principal: {
+                            AWS: ['*'],
+                        },
+                        Resource: ['arn:aws:s3:::' + bucketName + '/*'],
+                    },
+                ],
             }
+
+            await minioClient.setBucketPolicy(bucketName, JSON.stringify(policyAllowAllRead))
         }
 
         return {
@@ -39,20 +53,22 @@ const ensureBucket = async () => {
 }
 
 // upload minio
-const uploadMinio = async (file) => {
+const uploadMinio = async (file, folder) => {
     try {
         await ensureBucket()
 
-        let upload = await minioClient.fPutObject(bucketName, file.filename, file.path)
+        const objectName = `${folder}/${file.filename}`
 
-        const url = await minioClient.presignedGetObject(bucketName, file.filename, 24 * 60 * 60)
+        let upload = await minioClient.fPutObject(bucketName, objectName, file.path)
+
+        const url = await minioClient.presignedGetObject(bucketName, file.filename)
         // menghapus old image di folder
         fs.unlinkSync(file.path)
 
         return {
             success: true,
-            filename: file.filename,
-            url
+            filename: objectName,
+            url: `${publicUrl}/${bucketName}/${objectName}`
         }
     } catch (error) {
         return {
