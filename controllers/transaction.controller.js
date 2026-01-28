@@ -2,7 +2,9 @@ const prisma = require("../config/prisma.config")
 const snap = require('../config/midtrans.config')
 
 const createTransaction = async (req, res, next) => {
-    const { items, paymentMethod, orderType, customerName, tableNumber, paidAmount } = req.body
+    const { items, paymentMethod, orderType, customerName, tableNumber, note, paid } = req.body
+    const paidAmount = Number(paid)
+    console.log(req.body)
     const userId = parseInt(req.user.id)
 
     if (!items || items.length === 0) {
@@ -62,6 +64,16 @@ const createTransaction = async (req, res, next) => {
             })
         }
 
+        let changeAmount = null
+
+        if (paymentMethod === 'cash') {
+            if (paidAmount < totalAmount) {
+                throw new Error('Paid amount is less than total amount')
+            }
+            changeAmount = paidAmount - totalAmount
+        }
+
+
         const transaction = await prisma.transaction.create({
             data: {
                 userId,
@@ -72,6 +84,9 @@ const createTransaction = async (req, res, next) => {
                 // ternary jika pembayaran pakai cash maka true paid dan pending jika midtrans
                 paymentStatus: paymentMethod === 'cash' ? 'paid' : 'pending',
                 totalAmount,
+                note,
+                paidAmount: paymentMethod === 'cash' ? paidAmount : null,
+                changeAmount: paymentMethod === 'cash' ? changeAmount : null,
                 // ternary jika pembayaran cash maka true pakai date langsung dan null menunggu webhook midtrans
                 paidAt: paymentMethod === 'cash' ? new Date() : null,
                 midtransOrderId: null,
@@ -83,27 +98,8 @@ const createTransaction = async (req, res, next) => {
             }
         })
 
-        // opsi pembayaran cash
+
         if (paymentMethod === 'cash') {
-
-            if (paidAmount < totalAmount) {
-                const err = new Error('Paid amount is less than total amount')
-                err.status = 400
-                throw err
-            }
-
-            changeAmount = paidAmount - totalAmount
-            // update dahulu untuk transaction paid untuk menghindari race condition
-            await prisma.transaction.update({
-                where: { id: transaction.id },
-                data: {
-                    paidAmount: paidAmount,
-                    changeAmount: changeAmount,
-                    paymentStatus: 'paid',
-                    paidAt: new Date()
-                }
-            })
-
             for (const item of items) {
                 await prisma.product.update({
                     where: { id: item.productId },
@@ -120,6 +116,8 @@ const createTransaction = async (req, res, next) => {
                 transactionId: transaction.id,
                 paymentStatus: transaction.paymentStatus,
                 paymentMethod: transaction.paymentMethod,
+                paidAmount: transaction.paidAmount,
+                changeAmount: transaction.changeAmount,
                 totalAmount: transaction.totalAmount
             })
         }
@@ -148,8 +146,9 @@ const createTransaction = async (req, res, next) => {
             return res.status(200).json({
                 success: true,
                 message: 'Transaction (midtrans)',
+                transactionId: transaction.id,
                 orderId: orderId,
-                snapId : snapResponse.token,
+                snapId: snapResponse.token,
             })
         }
     } catch (error) {
@@ -176,6 +175,7 @@ const getTransaction = async (req, res, next) => {
                 tableNumber: true,
                 totalAmount: true,
                 createdAt: true,
+                note: true,
                 paymentMethod: true,
                 paymentStatus: true,
                 user: {
@@ -219,6 +219,7 @@ const getTransactionById = async (req, res, next) => {
                 tableNumber: true,
                 totalAmount: true,
                 createdAt: true,
+                note: true,
                 paymentMethod: true,
                 paymentStatus: true,
                 user: {
