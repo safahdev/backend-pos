@@ -52,7 +52,6 @@ const getAllCategoryWithProduct = async (req, res, next) => {
             ...category,
             products: category.products.map(product => ({
                 ...product,
-                price: moneyFormat(product.price),
                 imageUrl: buildMinioUrl(product.image)
             }))
         }))
@@ -99,7 +98,6 @@ const getCategoryWithProductById = async (req, res, next) => {
             ...categories,
             products: categories.products.map(product => ({
                 ...product,
-                price: moneyFormat(product.price),
                 imageUrl: buildMinioUrl(product.image)
             }))
         }

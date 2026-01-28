@@ -15,7 +15,7 @@ app.use(cors())
 app.use(express.json())
 app.use(compression())
 app.use(globalLimiter)
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: false }))
 
 // routes
 app.use('/api', routes)

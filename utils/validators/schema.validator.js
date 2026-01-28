@@ -83,6 +83,7 @@ const transactionItemSchema = z.object({
     qty: z.number().int().positive()
 })
 const createTransactionSchema = z.object({
+    paid: z.number().int().positive().optional(),
     customerName: z.string().optional(),
     tableNumber: z.number().int().optional(),
     orderType: z.enum(['dine_in', 'take_away']),

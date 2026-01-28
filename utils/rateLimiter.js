@@ -1,11 +1,11 @@
 const rateLimit = require('express-rate-limit')
 
 const globalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 menit
-    max: 30,
+    windowMs: 1 * 60 * 1000, // 15 menit
+    max: 500,
     message: {
         success: false,
-        message: 'Too many requests. Please try again in 15 minutes'
+        message: 'Too many requests. Please try again in 1 minutes'
     }
 })
 
