@@ -11,6 +11,6 @@ router.use(authMiddleware)
 router.get('/:id', validateParams(idParamSchema), adminOrCashier, productController.getProductById)
 router.post('/', upload.single('image'), validateBody(createProductSchema), adminOnly, productController.createProduct)
 router.put('/:id', upload.single('image'), validateParams(idParamSchema), validateBody(updateProductSchema), adminOnly, productController.updateProduct)
-router.delete('/:id', validateParams(idParamSchema), adminOnly, productController.deleteProduct)
+router.delete('/:id', adminOnly, productController.deleteProduct)
 
 module.exports = router
