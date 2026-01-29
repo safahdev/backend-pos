@@ -154,13 +154,17 @@ const deleteProduct = async (req, res, next) => {
 
         if (!product) {
             const err = new Error('Product not found')
-            err.status = 400
+            err.status = 404
             throw err
         }
 
         if (product.image) {
             await deleteMinio(product.image)
         }
+
+        await prisma.product.delete({
+            where: { id: Number(id) }
+        })
 
         return res.status(200).json({
             message: `Product id: ${id} deleted successfully`,
@@ -169,6 +173,7 @@ const deleteProduct = async (req, res, next) => {
         next(error)
     }
 }
+
 
 module.exports = {
     getProductById,
